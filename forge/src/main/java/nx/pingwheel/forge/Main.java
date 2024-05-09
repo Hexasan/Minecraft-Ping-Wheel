@@ -8,8 +8,9 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.network.ChannelBuilder;
+import net.minecraftforge.network.EventNetworkChannel;
 import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.event.EventNetworkChannel;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.core.ServerCore;
@@ -27,25 +28,9 @@ public class Main {
 
 	public static final String FORGE_ID = "pingwheel";
 
-	private static final String PROTOCOL_VERSION = "1";
-	public static final EventNetworkChannel PING_LOCATION_CHANNEL_C2S = NetworkRegistry.newEventChannel(
-		PingLocationC2SPacket.PACKET_ID,
-		() -> PROTOCOL_VERSION,
-		c -> true,
-		s -> true
-	);
-	public static final EventNetworkChannel PING_LOCATION_CHANNEL_S2C = NetworkRegistry.newEventChannel(
-		PingLocationS2CPacket.PACKET_ID,
-		() -> PROTOCOL_VERSION,
-		c -> true,
-		s -> true
-	);
-	public static final EventNetworkChannel UPDATE_CHANNEL_C2S = NetworkRegistry.newEventChannel(
-		UpdateChannelC2SPacket.PACKET_ID,
-		() -> PROTOCOL_VERSION,
-		c -> true,
-		s -> true
-	);
+	public static final EventNetworkChannel PING_LOCATION_CHANNEL_C2S = ChannelBuilder.named(PingLocationC2SPacket.PACKET_ID).optional().eventNetworkChannel();
+	public static final EventNetworkChannel PING_LOCATION_CHANNEL_S2C = ChannelBuilder.named(PingLocationS2CPacket.PACKET_ID).optional().eventNetworkChannel();
+	public static final EventNetworkChannel UPDATE_CHANNEL_C2S = ChannelBuilder.named(UpdateChannelC2SPacket.PACKET_ID).optional().eventNetworkChannel();
 
 	@SuppressWarnings({"java:S1118", "the public constructor is required by forge"})
 	public Main() {
@@ -63,7 +48,7 @@ public class Main {
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> Client::new);
 
 		PING_LOCATION_CHANNEL_C2S.addListener((event) -> {
-			var ctx = event.getSource().get();
+			var ctx = event.getSource();
 			var payload = event.getPayload();
 			var sender = ctx.getSender();
 
@@ -76,7 +61,7 @@ public class Main {
 		});
 
 		UPDATE_CHANNEL_C2S.addListener((event) -> {
-			var ctx = event.getSource().get();
+			var ctx = event.getSource();
 			var payload = event.getPayload();
 
 			if (payload != null) {
@@ -92,6 +77,6 @@ public class Main {
 
 	@SubscribeEvent
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-		ServerCore.onPlayerDisconnect((ServerPlayer)event.getPlayer());
+		ServerCore.onPlayerDisconnect((ServerPlayer)event.getEntity());
 	}
 }
