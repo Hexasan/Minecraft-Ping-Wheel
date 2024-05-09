@@ -6,10 +6,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import org.lwjgl.opengl.GL11;
@@ -78,7 +78,7 @@ public class Draw {
 		var matrixStackDummy = new PoseStack();
 		Game.getItemRenderer().render(
 			itemStack,
-			ItemTransforms.TransformType.GUI,
+			ItemDisplayContext.GUI,
 			false,
 			matrixStackDummy,
 			immediate,
@@ -133,7 +133,6 @@ public class Draw {
 
 		var bufferBuilder = Tesselator.getInstance().getBuilder();
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -143,9 +142,7 @@ public class Draw {
 		bufferBuilder.vertex(mat, -5f, -5f, 0f).color(1f, 1f, 1f, 1f).endVertex();
 		bufferBuilder.vertex(mat, -3f, 0f, 0f).color(1f, 1f, 1f, 1f).endVertex();
 		bufferBuilder.vertex(mat, -5f, 5f, 0f).color(1f, 1f, 1f, 1f).endVertex();
-		bufferBuilder.end();
-		BufferUploader.end(bufferBuilder);
-		RenderSystem.enableTexture();
+		BufferUploader.drawWithShader(bufferBuilder.end());
 		RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
 	}
