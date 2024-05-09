@@ -92,6 +92,6 @@ public class Main {
 
 	@SubscribeEvent
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-		ServerCore.onPlayerDisconnect((ServerPlayer)event.getPlayer());
+		ServerCore.onPlayerDisconnect((ServerPlayer)event.getEntity());
 	}
 }
